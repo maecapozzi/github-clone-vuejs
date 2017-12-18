@@ -1,53 +1,49 @@
-
 <template>
   <div>
-    <nav>
-      <h1>{{ msg }}</h1>
-      <ul>
-        <form>
-          <input class='search' />
-          <button>Submit</button>
-        </form>
-      </ul>
-    </nav>
-    <ul v-if="repos.length">
-      <li v-for="repo in repos">
-        {{ repo.name }}
-      </li>
+    <ul>
+      <SearchInput v-bind='{getRepos}'></SearchInput>
     </ul>
-    <p v-else>No repos left!</p>
+    <SearchResults v-bind:repoList='repos'></SearchResults>
   </div>
-
 </template>
 
 <script>
 import axios from 'axios'
+import SearchInput from './SearchInput'
+import SearchResults from './SearchResults'
 
 export default {
   name: 'SearchBar',
   data () {
     return {
-      msg: 'Github',
       repos: [],
-      errors: []
+      errors: [],
+      username: ''
     }
   },
-  created () {
-    axios.get('https://api.github.com/users/maecapozzi/repos')
+  components: {
+    SearchInput,
+    SearchResults
+  },
+  methods: {
+    getRepos: function (event, username) {
+      event.preventDefault()
+      const url = 'https://api.github.com/users/' + username + '/repos' 
+      axios.get(url)
       .then(response => {
         const reposArray = []
         response.data.map(repo => {
           reposArray.push(repo)
         })
         this.repos = reposArray
-        console.log(this.repos)
+        return this.repos
       })
+    }
   }
 }
 
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;
